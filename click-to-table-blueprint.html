@@ -983,7 +983,11 @@ function renderSingleChoice(q) {
       id: 'other_' + q.id, type: 'text', autocomplete: 'off',
       placeholder: 'Software name',
       value: state.answers[q.otherField] || '',
-      oninput: (e) => { state.answers[q.otherField] = e.target.value; scheduleAutosave(); }
+      oninput: (e) => {
+        state.answers[q.otherField] = e.target.value;
+        refreshAdvanceState(q);
+        scheduleAutosave();
+      }
     }));
     container.appendChild(wrap);
   }
@@ -994,16 +998,22 @@ function renderTextAnswer(q) {
   const container = el('div', { class: 'answers' });
   container.appendChild(el('textarea', {
     placeholder: q.placeholder || '',
-    value: state.answers[q.id] || '',
     oninput: (e) => {
       state.answers[q.id] = e.target.value;
+      refreshAdvanceState(q);
       scheduleAutosave();
     }
   }));
-  // Because textarea value attribute doesn't set content, set it after:
   const ta = container.querySelector('textarea');
   if (ta) ta.value = state.answers[q.id] || '';
   return container;
+}
+
+// Keep the Next / Submit button in sync with hasAnswer without re-rendering
+// (a full render would lose textarea focus / cursor position mid-typing).
+function refreshAdvanceState(q) {
+  const primary = document.querySelector('.nav-actions .btn-primary');
+  if (primary) primary.disabled = !hasAnswer(q);
 }
 
 function renderNav(idx) {
