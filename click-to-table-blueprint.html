@@ -1,0 +1,1132 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, viewport-fit=cover">
+<title>Build Your Blueprint — Click to Table</title>
+<meta name="theme-color" content="#f7f4ed">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="default">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,400;9..144,500;9..144,600&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+  /* ---------- Design tokens ---------- */
+  :root {
+    --bg: #f7f4ed;
+    --card: #ffffff;
+    --text: #2a2724;
+    --text-soft: #6b665e;
+    --text-muted: #9a9389;
+    --border: #e5dfd1;
+    --border-strong: #d4ccbb;
+    --sage: #7d9078;
+    --sage-deep: #5f7359;
+    --sage-tint: #eaefe5;
+    --gold: #b8944a;
+    --gold-deep: #94722f;
+    --gold-tint: #f3ecdb;
+    --error: #a8482f;
+    --error-tint: #f5e6df;
+    --radius-sm: 10px;
+    --radius: 16px;
+    --radius-lg: 22px;
+    --shadow-sm: 0 1px 2px rgba(42,39,36,0.04), 0 2px 6px rgba(42,39,36,0.04);
+    --shadow: 0 2px 6px rgba(42,39,36,0.05), 0 10px 24px rgba(42,39,36,0.06);
+    --font-serif: 'Fraunces', 'Cormorant Garamond', Georgia, 'Times New Roman', serif;
+    --font-sans: 'Inter', system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+  }
+
+  * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
+  html, body { margin: 0; padding: 0; }
+  html { background: var(--bg); }
+  body {
+    font-family: var(--font-sans);
+    color: var(--text);
+    background: var(--bg);
+    line-height: 1.5;
+    font-size: 16px;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+    min-height: 100vh;
+    min-height: 100dvh;
+    padding-bottom: env(safe-area-inset-bottom);
+  }
+
+  #app { min-height: 100vh; min-height: 100dvh; display: flex; flex-direction: column; }
+
+  /* ---------- Layout ---------- */
+  .screen {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    padding: 24px 20px 32px;
+    max-width: 640px;
+    width: 100%;
+    margin: 0 auto;
+  }
+
+  @media (min-width: 720px) {
+    .screen { padding: 40px 32px 48px; }
+  }
+
+  /* ---------- Typography ---------- */
+  h1, h2, h3 { font-family: var(--font-serif); font-weight: 500; letter-spacing: -0.01em; margin: 0; color: var(--text); }
+  h1 { font-size: 2.15rem; line-height: 1.1; }
+  h2 { font-size: 1.55rem; line-height: 1.2; }
+  h3 { font-size: 1.15rem; line-height: 1.25; }
+  p { margin: 0 0 12px; color: var(--text-soft); }
+  .eyebrow {
+    font-family: var(--font-sans);
+    font-size: 0.72rem;
+    letter-spacing: 0.14em;
+    text-transform: uppercase;
+    font-weight: 600;
+    color: var(--gold-deep);
+  }
+  .lede { font-size: 1.05rem; color: var(--text-soft); line-height: 1.55; }
+  .fine { font-size: 0.85rem; color: var(--text-muted); }
+
+  /* ---------- Buttons ---------- */
+  .btn {
+    display: inline-flex; align-items: center; justify-content: center; gap: 8px;
+    width: 100%;
+    padding: 17px 24px;
+    border-radius: 999px;
+    border: 1px solid transparent;
+    font-family: var(--font-sans);
+    font-size: 1rem;
+    font-weight: 600;
+    letter-spacing: 0.01em;
+    cursor: pointer;
+    transition: transform 0.06s ease, background 0.15s ease, border-color 0.15s ease, color 0.15s ease, box-shadow 0.15s ease;
+    min-height: 56px;
+    text-decoration: none;
+  }
+  .btn:active { transform: scale(0.985); }
+  .btn:disabled { opacity: 0.45; cursor: not-allowed; }
+  .btn-primary {
+    background: var(--text);
+    color: #f7f4ed;
+    box-shadow: var(--shadow-sm);
+  }
+  .btn-primary:hover:not(:disabled) { background: #14120f; }
+  .btn-secondary {
+    background: transparent;
+    color: var(--text);
+    border-color: var(--border-strong);
+  }
+  .btn-secondary:hover:not(:disabled) { background: rgba(0,0,0,0.03); }
+  .btn-ghost {
+    background: transparent;
+    color: var(--text-soft);
+    border-color: transparent;
+    min-height: 44px;
+    padding: 10px 16px;
+    font-weight: 500;
+  }
+  .btn-ghost:hover:not(:disabled) { color: var(--text); }
+
+  /* ---------- Cards ---------- */
+  .card {
+    background: var(--card);
+    border-radius: var(--radius-lg);
+    border: 1px solid var(--border);
+    padding: 28px 22px;
+  }
+  @media (min-width: 720px) { .card { padding: 40px 36px; } }
+
+  /* ---------- Welcome screen ---------- */
+  .welcome-mark {
+    display: inline-flex;
+    align-items: center; gap: 10px;
+    color: var(--gold-deep);
+    font-family: var(--font-sans);
+    font-size: 0.72rem;
+    letter-spacing: 0.22em;
+    text-transform: uppercase;
+    font-weight: 600;
+    margin-bottom: 16px;
+  }
+  .welcome-mark::before {
+    content: ''; width: 22px; height: 1px; background: var(--gold);
+  }
+  .welcome-title { margin-bottom: 14px; font-size: 2.4rem; }
+  @media (min-width: 720px) { .welcome-title { font-size: 3rem; } }
+  .welcome-sub { font-size: 1.1rem; color: var(--text-soft); margin-bottom: 24px; }
+  .welcome-body { color: var(--text-soft); margin-bottom: 22px; line-height: 1.6; }
+  .welcome-details {
+    list-style: none;
+    padding: 0;
+    margin: 0 0 32px;
+    display: grid;
+    gap: 12px;
+  }
+  .welcome-details li {
+    display: flex; align-items: flex-start; gap: 12px;
+    color: var(--text);
+    font-size: 0.95rem;
+  }
+  .welcome-details .dot {
+    flex: 0 0 6px; width: 6px; height: 6px; border-radius: 50%;
+    background: var(--sage); margin-top: 9px;
+  }
+  .welcome-actions { display: grid; gap: 12px; }
+
+  /* ---------- Framework nav (5 pillars) ---------- */
+  .framework {
+    display: flex;
+    align-items: stretch;
+    gap: 6px;
+    margin: 8px auto 8px;
+    padding: 4px 20px;
+    max-width: 640px;
+    width: 100%;
+  }
+  @media (min-width: 720px) { .framework { padding: 4px 32px; } }
+  .pillar {
+    flex: 1;
+    display: flex; flex-direction: column; align-items: center; gap: 6px;
+    padding: 8px 4px 10px;
+    border-radius: var(--radius-sm);
+    background: transparent;
+    text-align: center;
+    min-width: 0;
+  }
+  .pillar-dot {
+    width: 10px; height: 10px; border-radius: 50%;
+    background: transparent;
+    border: 1.5px solid var(--border-strong);
+    transition: all 0.2s ease;
+    position: relative;
+  }
+  .pillar.complete .pillar-dot {
+    background: var(--sage);
+    border-color: var(--sage);
+  }
+  .pillar.complete .pillar-dot::after {
+    content: ''; position: absolute; inset: 0;
+    background-image: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 10 10'><path d='M2 5.2 L4.2 7.4 L8 3.6' stroke='white' stroke-width='1.6' fill='none' stroke-linecap='round' stroke-linejoin='round'/></svg>");
+    background-size: contain;
+  }
+  .pillar.active .pillar-dot {
+    background: var(--gold);
+    border-color: var(--gold);
+    box-shadow: 0 0 0 4px var(--gold-tint);
+  }
+  .pillar-label {
+    font-size: 0.66rem;
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+    color: var(--text-muted);
+    font-weight: 600;
+    line-height: 1.1;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+    width: 100%;
+  }
+  .pillar.active .pillar-label { color: var(--gold-deep); }
+  .pillar.complete .pillar-label { color: var(--sage-deep); }
+  @media (max-width: 380px) {
+    .pillar-label { font-size: 0.6rem; letter-spacing: 0.04em; }
+  }
+
+  /* ---------- Question screen ---------- */
+  .q-header { margin-bottom: 20px; }
+  .q-meta {
+    display: flex; justify-content: space-between; align-items: baseline;
+    margin-bottom: 10px;
+  }
+  .q-section {
+    font-family: var(--font-sans);
+    font-size: 0.72rem;
+    letter-spacing: 0.14em;
+    text-transform: uppercase;
+    font-weight: 600;
+    color: var(--sage-deep);
+  }
+  .q-count {
+    font-size: 0.8rem;
+    color: var(--text-muted);
+    font-weight: 500;
+    font-variant-numeric: tabular-nums;
+  }
+  .q-title {
+    font-family: var(--font-serif);
+    font-size: 1.7rem;
+    line-height: 1.2;
+    color: var(--text);
+    margin-bottom: 8px;
+    letter-spacing: -0.01em;
+  }
+  @media (min-width: 720px) { .q-title { font-size: 2rem; } }
+  .q-help { font-size: 0.95rem; color: var(--text-soft); margin-bottom: 4px; }
+
+  .answers { display: grid; gap: 10px; margin: 22px 0 20px; }
+  .answer {
+    display: flex; align-items: center; gap: 14px;
+    background: var(--card);
+    border: 1.5px solid var(--border);
+    border-radius: var(--radius);
+    padding: 16px 18px;
+    cursor: pointer;
+    text-align: left;
+    font-family: var(--font-sans);
+    font-size: 1rem;
+    color: var(--text);
+    line-height: 1.35;
+    min-height: 60px;
+    transition: border-color 0.15s ease, background 0.15s ease, box-shadow 0.15s ease, transform 0.06s ease;
+    -webkit-appearance: none; appearance: none;
+    width: 100%;
+    font-weight: 500;
+  }
+  .answer:active { transform: scale(0.995); }
+  .answer:hover { border-color: var(--border-strong); }
+  .answer .check {
+    flex: 0 0 22px; width: 22px; height: 22px;
+    border-radius: 50%;
+    border: 1.5px solid var(--border-strong);
+    display: flex; align-items: center; justify-content: center;
+    transition: all 0.15s ease;
+  }
+  .answer.selected {
+    border-color: var(--sage);
+    background: var(--sage-tint);
+    box-shadow: 0 0 0 3px rgba(125,144,120,0.15);
+  }
+  .answer.selected .check {
+    background: var(--sage);
+    border-color: var(--sage);
+  }
+  .answer.selected .check::after {
+    content: '';
+    width: 12px; height: 12px;
+    background-image: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 12 12'><path d='M2.5 6.5 L5 9 L9.5 3.5' stroke='white' stroke-width='2' fill='none' stroke-linecap='round' stroke-linejoin='round'/></svg>");
+    background-size: contain;
+  }
+  .answer-text { flex: 1; }
+
+  .other-field {
+    margin-top: 4px;
+    display: block;
+  }
+  .other-field label {
+    display: block;
+    font-size: 0.85rem;
+    color: var(--text-soft);
+    margin-bottom: 6px;
+    padding-left: 4px;
+  }
+
+  textarea, input[type="text"], input[type="email"] {
+    width: 100%;
+    font-family: var(--font-sans);
+    font-size: 1rem;
+    color: var(--text);
+    background: var(--card);
+    border: 1.5px solid var(--border);
+    border-radius: var(--radius);
+    padding: 14px 16px;
+    line-height: 1.5;
+    transition: border-color 0.15s ease, box-shadow 0.15s ease;
+    -webkit-appearance: none; appearance: none;
+  }
+  textarea { min-height: 140px; resize: vertical; }
+  textarea:focus, input:focus {
+    outline: none;
+    border-color: var(--sage);
+    box-shadow: 0 0 0 3px rgba(125,144,120,0.15);
+  }
+  input::placeholder, textarea::placeholder { color: var(--text-muted); }
+
+  /* ---------- Contact form ---------- */
+  .form-grid { display: grid; gap: 14px; margin-bottom: 24px; }
+  .form-row { display: grid; gap: 14px; grid-template-columns: 1fr 1fr; }
+  @media (max-width: 480px) { .form-row { grid-template-columns: 1fr; } }
+  .field label {
+    display: block;
+    font-size: 0.8rem;
+    color: var(--text-soft);
+    margin-bottom: 6px;
+    font-weight: 500;
+    letter-spacing: 0.02em;
+  }
+  .field label .req { color: var(--gold-deep); margin-left: 2px; }
+  .field-error { font-size: 0.8rem; color: var(--error); margin-top: 6px; padding-left: 4px; }
+  .field.has-error input, .field.has-error textarea { border-color: var(--error); }
+
+  /* ---------- Nav actions ---------- */
+  .nav-actions {
+    display: grid;
+    gap: 10px;
+    margin-top: auto;
+    padding-top: 20px;
+  }
+  .nav-back-wrap {
+    display: flex; justify-content: center;
+    margin-top: 8px;
+  }
+  .autosave {
+    display: flex; align-items: center; justify-content: center; gap: 8px;
+    margin-top: 18px;
+    font-size: 0.8rem;
+    color: var(--text-muted);
+    letter-spacing: 0.01em;
+  }
+  .autosave-dot {
+    width: 6px; height: 6px; border-radius: 50%;
+    background: var(--sage);
+    opacity: 0.6;
+  }
+  .autosave.saving .autosave-dot {
+    animation: pulse 1.2s ease infinite;
+  }
+  @keyframes pulse {
+    0%, 100% { opacity: 0.3; transform: scale(1); }
+    50% { opacity: 1; transform: scale(1.4); }
+  }
+
+  /* ---------- Submitting / end screen ---------- */
+  .center-stage {
+    flex: 1;
+    display: flex; flex-direction: column; align-items: center; justify-content: center;
+    text-align: center;
+    padding: 40px 20px;
+  }
+  .spinner {
+    width: 44px; height: 44px;
+    border-radius: 50%;
+    border: 3px solid var(--sage-tint);
+    border-top-color: var(--sage);
+    animation: spin 0.9s linear infinite;
+    margin-bottom: 24px;
+  }
+  @keyframes spin { to { transform: rotate(360deg); } }
+  .success-mark {
+    width: 68px; height: 68px;
+    border-radius: 50%;
+    background: var(--sage);
+    display: flex; align-items: center; justify-content: center;
+    margin-bottom: 26px;
+    box-shadow: 0 8px 24px rgba(125,144,120,0.25);
+  }
+  .success-mark::after {
+    content: '';
+    width: 30px; height: 30px;
+    background-image: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 30 30'><path d='M7 15.5 L13 21 L23 10' stroke='white' stroke-width='3' fill='none' stroke-linecap='round' stroke-linejoin='round'/></svg>");
+    background-size: contain;
+  }
+
+  .end-title { font-size: 2rem; margin-bottom: 14px; }
+  .end-body { color: var(--text-soft); max-width: 480px; margin-bottom: 28px; font-size: 1rem; line-height: 1.6; }
+  .end-actions { width: 100%; max-width: 320px; }
+
+  .error-box {
+    margin-top: 18px;
+    padding: 14px 16px;
+    border: 1px solid var(--error);
+    background: var(--error-tint);
+    color: var(--error);
+    border-radius: var(--radius);
+    font-size: 0.9rem;
+    text-align: left;
+  }
+
+  /* ---------- Header (thin) ---------- */
+  .top-bar {
+    display: flex; align-items: center; justify-content: space-between;
+    padding: 18px 20px 6px;
+    max-width: 640px;
+    width: 100%;
+    margin: 0 auto;
+  }
+  .brand {
+    font-family: var(--font-serif);
+    font-size: 1rem;
+    color: var(--text);
+    letter-spacing: 0.01em;
+    font-weight: 500;
+  }
+  .brand em { font-style: italic; color: var(--gold-deep); font-weight: 500; }
+  .exit-link {
+    font-size: 0.8rem;
+    color: var(--text-muted);
+    text-decoration: none;
+    padding: 6px 10px;
+    border-radius: 6px;
+  }
+  .exit-link:hover { color: var(--text); background: rgba(0,0,0,0.03); }
+
+  /* subtle top border on screens except welcome */
+  .divider {
+    height: 1px; background: var(--border);
+    max-width: 640px; width: calc(100% - 40px); margin: 0 auto 20px;
+  }
+  @media (min-width: 720px) { .divider { width: calc(100% - 64px); } }
+</style>
+</head>
+<body>
+<div id="app"></div>
+
+<script>
+/* ============================================================
+   CLICK TO TABLE BLUEPRINT — Attendee Web App
+   ------------------------------------------------------------
+   REQUIRED SETUP: paste your deployed Google Apps Script Web
+   App URL below. See click-to-table-setup.md for full steps.
+   ============================================================ */
+const CONFIG = {
+  APPS_SCRIPT_URL: https://script.google.com/macros/s/AKfycbxSC7AN6SzJs_AKz8RTh18e6cx1LfaAtGw0_z3AtMS12inBZCHgBRA900spAWzF-1QbHA/exec,
+  STORAGE_KEY: 'ctt_blueprint_state_v1',
+  AUTOSAVE_DEBOUNCE_MS: 700
+};
+
+/* ---------- Framework & Questions ---------- */
+const SECTIONS = [
+  { key: 'opportunity', label: 'Opportunity', title: 'Find the Opportunity' },
+  { key: 'offer',       label: 'Offer',       title: 'Build the Offer' },
+  { key: 'experience',  label: 'Experience',  title: 'Design the Buying Experience' },
+  { key: 'operations',  label: 'Operations',  title: 'Build the Operational Engine' },
+  { key: 'growth',      label: 'Growth',      title: 'Scale What Works' }
+];
+
+const QUESTIONS = [
+  // Section 1 — Opportunity
+  { id: 'q1', section: 0, title: 'What is your primary goal for launching or expanding e-commerce?', type: 'single', options: [
+    'Fill seasonal revenue gaps',
+    'Increase recurring revenue',
+    'Reach new customers',
+    'Simplify ordering',
+    'Increase average order value',
+    'Reduce administrative workload'
+  ]},
+  { id: 'q2', section: 0, title: 'Which quarter is typically your lightest for catering revenue?', type: 'single', options: [
+    'Q1 (Jan–Mar)',
+    'Q2 (Apr–Jun)',
+    'Q3 (Jul–Sep)',
+    'Q4 (Oct–Dec)',
+    'Fairly consistent year-round'
+  ]},
+  { id: 'q3', section: 0, title: 'Where do you believe your greatest opportunity for online growth exists?', type: 'single', options: [
+    'Existing customers ordering more often',
+    'New corporate clients',
+    'New social clients',
+    'Seasonal or limited-time offerings',
+    'Expanding into new geographic markets',
+    'I’m not sure yet'
+  ]},
+  // Section 2 — Offer
+  { id: 'q4', section: 1, title: 'Which customer segment would you focus on first?', type: 'single', options: [
+    'Corporate', 'Social', 'Weddings', 'Schools & Camps', 'Healthcare', 'Mixed'
+  ]},
+  { id: 'q5', section: 1, title: 'Which product category would you launch first?', type: 'single', options: [
+    'Breakfast', 'Box Lunches', 'Buffets', 'Family Meals', 'Holiday Packages',
+    'Individual Meals', 'Appetizers & Grazing', 'Entertaining Packages'
+  ]},
+  { id: 'q6', section: 1, title: 'How many online packages could you realistically launch in the next 30 days?', type: 'single', options: [
+    '5', '10', '15', '20+'
+  ]},
+  // Section 3 — Experience
+  { id: 'q7', section: 2, title: 'Which best describes your current website?', type: 'single', options: [
+    'Marketing website only',
+    'Inquiry / request-a-proposal form',
+    'Basic online ordering',
+    'Full e-commerce store'
+  ]},
+  { id: 'q8', section: 2, title: 'What catering or event management software do you currently use?', type: 'single', otherField: 'q8Other', options: [
+    'Caterease', 'TripleSeat', 'CaterZen', 'Total Party Planner', 'Better Cater',
+    'Curate', 'Flex Catering', 'Google Workspace / spreadsheets', 'None', 'Other'
+  ]},
+  { id: 'q9', section: 2, title: 'How do most customers place orders today?', type: 'single', options: [
+    'Phone', 'Email', 'Website inquiry', 'Online ordering', 'Sales representative', 'Mix of the above'
+  ]},
+  // Section 4 — Operations
+  { id: 'q10', section: 3, title: 'Which operational area concerns you most?', type: 'single', options: [
+    'Production', 'Packaging', 'Delivery', 'Staffing', 'Technology', 'Food Quality'
+  ]},
+  { id: 'q11', section: 3, title: 'How are deliveries primarily handled today?', type: 'single', options: [
+    'In-house fleet', 'Third-party delivery', 'Customer pickup', 'Combination', 'Not applicable'
+  ]},
+  { id: 'q12', section: 3, title: 'Which process is still the most manual?', type: 'single', options: [
+    'Order entry', 'Production planning', 'Labeling', 'Delivery logistics', 'Customer communication', 'Payment collection'
+  ]},
+  // Section 5 — Growth
+  { id: 'q13', section: 4, title: 'Once your initial launch is successful, what would you expand next?', type: 'single', options: [
+    'More products',
+    'More customer segments',
+    'More geographic markets',
+    'Subscription or recurring programs',
+    'Seasonal offerings'
+  ]},
+  { id: 'q14', section: 4, title: 'Which statement best describes your organization today?', type: 'single', options: [
+    'We’re just getting started with e-commerce.',
+    'We have online ordering but want to improve it.',
+    'We have a successful online store and want to scale it.',
+    'We are looking for new targeted digital revenue opportunities.'
+  ]},
+  { id: 'q15', section: 4, title: 'Six months from now, what would make you consider this project a success?', type: 'text', placeholder: 'Share what a successful outcome would look like…' }
+];
+
+/* ---------- State ---------- */
+const emptyState = () => ({
+  submissionId: null,
+  step: 'welcome', // welcome | contact | q0..q14 | submitting | end
+  contact: {
+    firstName: '', lastName: '', company: '', title: '',
+    email: '', city: '', state: ''
+  },
+  answers: {}, // { q1: 'value', q8Other: 'text', ... }
+  submitted: false,
+  startedAt: null,
+  updatedAt: null
+});
+
+let state = emptyState();
+let autosaveTimer = null;
+let autosaveInFlight = false;
+let syncStatusEl = null;
+
+/* ---------- Persistence ---------- */
+function loadState() {
+  try {
+    const raw = localStorage.getItem(CONFIG.STORAGE_KEY);
+    if (!raw) return;
+    const parsed = JSON.parse(raw);
+    if (parsed && typeof parsed === 'object') {
+      // shallow merge so schema additions still work
+      state = Object.assign(emptyState(), parsed);
+      if (!state.answers) state.answers = {};
+      if (!state.contact) state.contact = emptyState().contact;
+    }
+  } catch (e) { /* ignore corrupt state */ }
+}
+
+function saveStateLocal() {
+  try {
+    state.updatedAt = new Date().toISOString();
+    localStorage.setItem(CONFIG.STORAGE_KEY, JSON.stringify(state));
+  } catch (e) { /* storage full — non-fatal */ }
+}
+
+function scheduleAutosave() {
+  saveStateLocal();
+  markAutosaving();
+  if (autosaveTimer) clearTimeout(autosaveTimer);
+  autosaveTimer = setTimeout(() => { pushToCloud('autosave'); }, CONFIG.AUTOSAVE_DEBOUNCE_MS);
+}
+
+function markAutosaving() {
+  if (syncStatusEl) {
+    syncStatusEl.classList.add('saving');
+    syncStatusEl.querySelector('.autosave-text').textContent = 'Saving…';
+  }
+}
+function markAutosaved() {
+  if (syncStatusEl) {
+    syncStatusEl.classList.remove('saving');
+    syncStatusEl.querySelector('.autosave-text').textContent = 'Responses are automatically saved.';
+  }
+}
+
+async function pushToCloud(kind) {
+  if (!state.submissionId) return; // nothing to sync yet
+  if (!CONFIG.APPS_SCRIPT_URL || CONFIG.APPS_SCRIPT_URL.startsWith('PASTE_')) {
+    // Not configured — treat local save as sufficient during dev
+    markAutosaved();
+    return;
+  }
+  // Autosave: skip if one is already in flight — a fresh call will land on next debounce.
+  // Submit: must not be skipped, so wait for the in-flight autosave to clear.
+  if (autosaveInFlight) {
+    if (kind !== 'submit') return;
+    let waited = 0;
+    while (autosaveInFlight && waited < 5000) { await new Promise(r => setTimeout(r, 100)); waited += 100; }
+  }
+  autosaveInFlight = true;
+  try {
+    const body = new URLSearchParams();
+    body.set('action', kind === 'submit' ? 'submit' : 'autosave');
+    body.set('payload', JSON.stringify(serializeForServer()));
+    const res = await fetch(CONFIG.APPS_SCRIPT_URL, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/x-www-form-urlencoded;charset=UTF-8' },
+      body: body.toString()
+    });
+    if (!res.ok) throw new Error('HTTP ' + res.status);
+    const data = await res.json().catch(() => ({}));
+    if (data && data.ok === false) throw new Error(data.error || 'Server returned error');
+    markAutosaved();
+    return data;
+  } catch (err) {
+    markAutosaved(); // don't leave the pulsing dot on
+    if (kind === 'submit') throw err;
+    // autosave failure is silent — local copy remains
+  } finally {
+    autosaveInFlight = false;
+  }
+}
+
+function serializeForServer() {
+  return {
+    submissionId: state.submissionId,
+    startedAt: state.startedAt,
+    updatedAt: new Date().toISOString(),
+    contact: state.contact,
+    answers: state.answers,
+    submitted: state.submitted
+  };
+}
+
+/* ---------- Utilities ---------- */
+function uuid() {
+  if (crypto && crypto.randomUUID) return crypto.randomUUID();
+  return 'ctt-' + Date.now().toString(36) + '-' + Math.random().toString(36).slice(2, 10);
+}
+
+function isValidEmail(v) {
+  return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(String(v || '').trim());
+}
+
+function sectionForStep(step) {
+  if (typeof step === 'string' && step.startsWith('q')) {
+    const idx = parseInt(step.slice(1), 10);
+    if (!isNaN(idx) && QUESTIONS[idx]) return QUESTIONS[idx].section;
+  }
+  return -1;
+}
+
+function sectionCompletion(sectionIdx) {
+  const inSection = QUESTIONS.filter(q => q.section === sectionIdx);
+  const answered = inSection.filter(q => hasAnswer(q));
+  return { total: inSection.length, answered: answered.length };
+}
+function hasAnswer(q) {
+  const v = state.answers[q.id];
+  if (q.type === 'text') return typeof v === 'string' && v.trim().length > 0;
+  if (v == null || v === '') return false;
+  if (q.otherField && v === 'Other') {
+    return String(state.answers[q.otherField] || '').trim().length > 0;
+  }
+  return true;
+}
+
+/* ---------- Rendering ---------- */
+const app = () => document.getElementById('app');
+
+function render() {
+  const root = app();
+  root.innerHTML = '';
+
+  const step = state.step;
+  if (step === 'welcome') return renderWelcome(root);
+  if (step === 'contact') return renderContact(root);
+  if (step === 'submitting') return renderSubmitting(root);
+  if (step === 'end') return renderEnd(root);
+  if (typeof step === 'string' && step.startsWith('q')) {
+    const idx = parseInt(step.slice(1), 10);
+    if (!isNaN(idx) && QUESTIONS[idx]) return renderQuestion(root, idx);
+  }
+  // fallback
+  state.step = 'welcome';
+  renderWelcome(root);
+}
+
+function el(tag, attrs, ...children) {
+  const node = document.createElement(tag);
+  if (attrs) {
+    for (const k in attrs) {
+      if (k === 'class') node.className = attrs[k];
+      else if (k === 'html') node.innerHTML = attrs[k];
+      else if (k.startsWith('on') && typeof attrs[k] === 'function') {
+        node.addEventListener(k.slice(2).toLowerCase(), attrs[k]);
+      } else if (k === 'style' && typeof attrs[k] === 'object') {
+        Object.assign(node.style, attrs[k]);
+      } else if (attrs[k] === true) {
+        node.setAttribute(k, '');
+      } else if (attrs[k] !== false && attrs[k] != null) {
+        node.setAttribute(k, attrs[k]);
+      }
+    }
+  }
+  for (const child of children) {
+    if (child == null || child === false) continue;
+    if (Array.isArray(child)) child.forEach(c => c && node.appendChild(typeof c === 'string' ? document.createTextNode(c) : c));
+    else if (typeof child === 'string') node.appendChild(document.createTextNode(child));
+    else node.appendChild(child);
+  }
+  return node;
+}
+
+/* ---------- Screens ---------- */
+function renderWelcome(root) {
+  const screen = el('div', { class: 'screen' });
+  const card = el('div', { class: 'card' },
+    el('div', { class: 'welcome-mark' }, 'Click to Table'),
+    el('h1', { class: 'welcome-title' }, 'Build Your Blueprint'),
+    el('p', { class: 'welcome-sub' }, 'A personalized roadmap for launching or growing e-commerce in your catering business.'),
+    el('p', { class: 'welcome-body' }, 'Throughout today’s workshop, you’ll answer 15 Blueprint Questions. Your responses will be used to create a personalized Click to Table Blueprint after ICA ASCEND.'),
+    el('ul', { class: 'welcome-details' },
+      liDetail('Takes place during the session'),
+      liDetail('Responses autosave'),
+      liDetail('Personalized report delivered after the conference'),
+      liDetail('Personally reviewed before sending')
+    ),
+    el('div', { class: 'welcome-actions' },
+      el('button', {
+        class: 'btn btn-primary',
+        onclick: () => { beginBlueprint(); }
+      }, state.contact.email && state.submissionId ? 'Resume Blueprint' : 'Begin Blueprint'),
+      (state.submissionId && !state.submitted) ? el('button', {
+        class: 'btn btn-ghost',
+        onclick: () => { if (confirm('Start over? This will clear your saved responses on this device.')) resetAll(); }
+      }, 'Start over') : null
+    )
+  );
+  screen.appendChild(card);
+  root.appendChild(screen);
+}
+function liDetail(text) {
+  return el('li', null, el('span', { class: 'dot' }), el('span', null, text));
+}
+
+function beginBlueprint() {
+  if (!state.submissionId) {
+    state.submissionId = uuid();
+    state.startedAt = new Date().toISOString();
+  }
+  // If contact info already filled, jump to next unanswered question
+  if (contactValid().ok) {
+    state.step = firstUnansweredStep();
+  } else {
+    state.step = 'contact';
+  }
+  saveStateLocal();
+  render();
+}
+
+function firstUnansweredStep() {
+  for (let i = 0; i < QUESTIONS.length; i++) {
+    if (!hasAnswer(QUESTIONS[i])) return 'q' + i;
+  }
+  return 'q' + (QUESTIONS.length - 1);
+}
+
+function resetAll() {
+  localStorage.removeItem(CONFIG.STORAGE_KEY);
+  state = emptyState();
+  render();
+}
+
+/* ---------- Contact form ---------- */
+function contactValid() {
+  const c = state.contact;
+  const errors = {};
+  if (!c.firstName.trim()) errors.firstName = 'Required';
+  if (!c.lastName.trim()) errors.lastName = 'Required';
+  if (!c.company.trim()) errors.company = 'Required';
+  if (!c.email.trim()) errors.email = 'Required';
+  else if (!isValidEmail(c.email)) errors.email = 'Enter a valid email';
+  return { ok: Object.keys(errors).length === 0, errors };
+}
+
+function renderContact(root) {
+  const topBar = el('div', { class: 'top-bar' },
+    el('div', { class: 'brand' }, 'Click ', el('em', null, 'to Table')),
+    el('a', { class: 'exit-link', href: '#', onclick: e => { e.preventDefault(); state.step = 'welcome'; saveStateLocal(); render(); } }, 'Back')
+  );
+  root.appendChild(topBar);
+  root.appendChild(el('div', { class: 'divider' }));
+
+  const screen = el('div', { class: 'screen' });
+  const errs = attemptedContact ? contactValid().errors : {};
+
+  const card = el('div', { class: 'card' },
+    el('div', { class: 'eyebrow', style: { marginBottom: '10px' } }, 'A quick introduction'),
+    el('h2', null, 'Tell us who you are'),
+    el('p', { class: 'lede', style: { marginTop: '10px', marginBottom: '22px' } },
+      'We’ll use this to send your personalized Blueprint after the conference.'),
+    el('div', { class: 'form-grid' },
+      el('div', { class: 'form-row' },
+        contactField('firstName', 'First Name', true, errs),
+        contactField('lastName', 'Last Name', true, errs)
+      ),
+      contactField('company', 'Company', true, errs),
+      contactField('title', 'Title', false, errs),
+      contactField('email', 'Email', true, errs, 'email'),
+      el('div', { class: 'form-row' },
+        contactField('city', 'City', false, errs),
+        contactField('state', 'State', false, errs)
+      )
+    ),
+    el('div', { class: 'nav-actions' },
+      el('button', {
+        class: 'btn btn-primary',
+        onclick: () => {
+          attemptedContact = true;
+          const v = contactValid();
+          if (!v.ok) { render(); return; }
+          state.step = firstUnansweredStep();
+          scheduleAutosave();
+          render();
+          window.scrollTo({ top: 0, behavior: 'instant' });
+        }
+      }, 'Continue')
+    )
+  );
+  screen.appendChild(card);
+  root.appendChild(screen);
+}
+
+let attemptedContact = false;
+
+function contactField(key, label, required, errs, type) {
+  const hasErr = !!errs[key];
+  const wrap = el('div', { class: 'field' + (hasErr ? ' has-error' : '') });
+  const id = 'f_' + key;
+  wrap.appendChild(el('label', { for: id },
+    label,
+    required ? el('span', { class: 'req' }, '*') : null
+  ));
+  const input = el('input', {
+    id, type: type || 'text', autocomplete: autocompleteFor(key), value: state.contact[key] || '',
+    inputmode: type === 'email' ? 'email' : undefined,
+    oninput: (e) => { state.contact[key] = e.target.value; scheduleAutosave(); }
+  });
+  wrap.appendChild(input);
+  if (hasErr) wrap.appendChild(el('div', { class: 'field-error' }, errs[key]));
+  return wrap;
+}
+function autocompleteFor(key) {
+  return {
+    firstName: 'given-name', lastName: 'family-name', company: 'organization',
+    title: 'organization-title', email: 'email', city: 'address-level2', state: 'address-level1'
+  }[key] || 'off';
+}
+
+/* ---------- Question screen ---------- */
+function renderQuestion(root, idx) {
+  const q = QUESTIONS[idx];
+  const section = SECTIONS[q.section];
+
+  const topBar = el('div', { class: 'top-bar' },
+    el('div', { class: 'brand' }, 'Click ', el('em', null, 'to Table')),
+    el('span', { class: 'exit-link' }, 'Question ' + (idx + 1) + ' / ' + QUESTIONS.length)
+  );
+  root.appendChild(topBar);
+
+  root.appendChild(renderFramework(q.section));
+
+  const screen = el('div', { class: 'screen' });
+
+  const card = el('div', { class: 'card' },
+    el('div', { class: 'q-header' },
+      el('div', { class: 'q-meta' },
+        el('span', { class: 'q-section' }, section.title),
+        el('span', { class: 'q-count' }, (idx + 1) + ' of ' + QUESTIONS.length)
+      ),
+      el('h2', { class: 'q-title' }, q.title)
+    ),
+    q.type === 'single' ? renderSingleChoice(q) : renderTextAnswer(q),
+    renderNav(idx),
+    renderAutosave()
+  );
+  screen.appendChild(card);
+  root.appendChild(screen);
+}
+
+function renderFramework(activeSection) {
+  const wrap = el('div', { class: 'framework', role: 'progressbar', 'aria-label': 'Blueprint sections' });
+  SECTIONS.forEach((s, i) => {
+    const { total, answered } = sectionCompletion(i);
+    const isActive = i === activeSection;
+    const isComplete = answered === total && total > 0 && i !== activeSection;
+    const pillar = el('div', {
+      class: 'pillar' + (isActive ? ' active' : '') + (isComplete ? ' complete' : ''),
+      'aria-current': isActive ? 'step' : null
+    },
+      el('div', { class: 'pillar-dot' }),
+      el('div', { class: 'pillar-label' }, s.label)
+    );
+    wrap.appendChild(pillar);
+  });
+  return wrap;
+}
+
+function renderSingleChoice(q) {
+  const container = el('div', { class: 'answers', role: 'radiogroup', 'aria-label': q.title });
+  const current = state.answers[q.id];
+  q.options.forEach(opt => {
+    const selected = current === opt;
+    const btn = el('button', {
+      type: 'button',
+      class: 'answer' + (selected ? ' selected' : ''),
+      role: 'radio',
+      'aria-checked': selected ? 'true' : 'false',
+      onclick: () => {
+        state.answers[q.id] = opt;
+        scheduleAutosave();
+        render();
+      }
+    },
+      el('span', { class: 'check' }),
+      el('span', { class: 'answer-text' }, opt)
+    );
+    container.appendChild(btn);
+  });
+
+  if (q.otherField && current === 'Other') {
+    const wrap = el('div', { class: 'other-field field' });
+    wrap.appendChild(el('label', { for: 'other_' + q.id }, 'Please specify'));
+    wrap.appendChild(el('input', {
+      id: 'other_' + q.id, type: 'text', autocomplete: 'off',
+      placeholder: 'Software name',
+      value: state.answers[q.otherField] || '',
+      oninput: (e) => { state.answers[q.otherField] = e.target.value; scheduleAutosave(); }
+    }));
+    container.appendChild(wrap);
+  }
+  return container;
+}
+
+function renderTextAnswer(q) {
+  const container = el('div', { class: 'answers' });
+  container.appendChild(el('textarea', {
+    placeholder: q.placeholder || '',
+    value: state.answers[q.id] || '',
+    oninput: (e) => {
+      state.answers[q.id] = e.target.value;
+      scheduleAutosave();
+    }
+  }));
+  // Because textarea value attribute doesn't set content, set it after:
+  const ta = container.querySelector('textarea');
+  if (ta) ta.value = state.answers[q.id] || '';
+  return container;
+}
+
+function renderNav(idx) {
+  const q = QUESTIONS[idx];
+  const isLast = idx === QUESTIONS.length - 1;
+  const canAdvance = hasAnswer(q);
+
+  const next = el('button', {
+    class: 'btn btn-primary',
+    disabled: !canAdvance,
+    onclick: () => {
+      if (!hasAnswer(q)) return;
+      if (isLast) {
+        submitBlueprint();
+      } else {
+        state.step = 'q' + (idx + 1);
+        scheduleAutosave();
+        render();
+        window.scrollTo({ top: 0, behavior: 'instant' });
+      }
+    }
+  }, isLast ? 'Submit Blueprint' : 'Next');
+
+  const back = el('button', {
+    class: 'btn btn-ghost',
+    onclick: () => {
+      if (idx === 0) {
+        state.step = 'contact';
+      } else {
+        state.step = 'q' + (idx - 1);
+      }
+      saveStateLocal();
+      render();
+      window.scrollTo({ top: 0, behavior: 'instant' });
+    }
+  }, 'Back');
+
+  return el('div', null,
+    el('div', { class: 'nav-actions' }, next),
+    el('div', { class: 'nav-back-wrap' }, back)
+  );
+}
+
+function renderAutosave() {
+  const wrap = el('div', { class: 'autosave' },
+    el('span', { class: 'autosave-dot' }),
+    el('span', { class: 'autosave-text' }, 'Responses are automatically saved.')
+  );
+  syncStatusEl = wrap;
+  return wrap;
+}
+
+/* ---------- Submission ---------- */
+async function submitBlueprint() {
+  state.step = 'submitting';
+  state.submitted = true;
+  saveStateLocal();
+  render();
+  try {
+    if (autosaveTimer) { clearTimeout(autosaveTimer); autosaveTimer = null; }
+    // Wait for any in-flight autosave briefly
+    let waited = 0;
+    while (autosaveInFlight && waited < 3000) { await new Promise(r => setTimeout(r, 100)); waited += 100; }
+    await pushToCloud('submit');
+    state.step = 'end';
+    saveStateLocal();
+    render();
+  } catch (err) {
+    state.submitted = false;
+    renderSubmitError(err && err.message ? err.message : 'We couldn’t reach the server.');
+  }
+}
+
+function renderSubmitting(root) {
+  const stage = el('div', { class: 'center-stage' },
+    el('div', { class: 'spinner' }),
+    el('h2', null, 'Submitting your Blueprint…'),
+    el('p', { class: 'lede', style: { maxWidth: '360px' } }, 'One moment while we save your responses.')
+  );
+  root.appendChild(stage);
+}
+
+function renderSubmitError(msg) {
+  const root = app();
+  root.innerHTML = '';
+  const stage = el('div', { class: 'center-stage' },
+    el('h2', null, 'Submission didn’t go through'),
+    el('p', { class: 'lede' }, 'Your responses are saved on this device. Please check your connection and try again.'),
+    el('div', { class: 'error-box' }, msg),
+    el('div', { class: 'end-actions', style: { marginTop: '24px' } },
+      el('button', { class: 'btn btn-primary', onclick: () => submitBlueprint() }, 'Try Again'),
+      el('div', { style: { height: '10px' } }),
+      el('button', { class: 'btn btn-ghost', onclick: () => { state.step = 'q' + (QUESTIONS.length - 1); state.submitted = false; render(); } }, 'Back to last question')
+    )
+  );
+  root.appendChild(stage);
+}
+
+function renderEnd(root) {
+  const stage = el('div', { class: 'center-stage' },
+    el('div', { class: 'success-mark' }),
+    el('h1', { class: 'end-title' }, 'Your Blueprint Is Underway'),
+    el('p', { class: 'end-body' },
+      'Thank you for participating in the Click to Table workshop. Your responses have been captured. After ICA ASCEND, Rosie will personally review each roadmap before it is delivered.'),
+    el('p', { class: 'end-body', style: { marginTop: '-6px' } },
+      'Look for your personalized Click to Table Blueprint in your inbox after the conference.'),
+    el('div', { class: 'end-actions' },
+      el('button', { class: 'btn btn-primary', onclick: () => { /* leave submitted state as-is */ } }, 'Done')
+    )
+  );
+  root.appendChild(stage);
+}
+
+/* ---------- Boot ---------- */
+window.addEventListener('DOMContentLoaded', () => {
+  loadState();
+  // If somehow left mid-submit, restore to last question
+  if (state.step === 'submitting') state.step = 'q' + (QUESTIONS.length - 1);
+  render();
+});
+
+// Save on unload as a final belt-and-suspenders
+window.addEventListener('beforeunload', () => { saveStateLocal(); });
+</script>
+</body>
+</html>
