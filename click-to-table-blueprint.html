@@ -458,6 +458,49 @@
   .inbox-when { font-size: 0.82rem; color: var(--text-muted); margin-top: 2px; letter-spacing: 0.02em; }
   .inbox-desc { font-size: 0.9rem; color: var(--text-soft); margin-top: 4px; line-height: 1.45; }
 
+  .connect-card {
+    max-width: 460px;
+    width: 100%;
+    padding: 20px 22px;
+    border-radius: var(--radius);
+    background: var(--sage-tint);
+    border: 1px solid #d5decf;
+    margin-bottom: 28px;
+    text-align: left;
+    display: flex;
+    align-items: center;
+    gap: 14px;
+  }
+  .connect-mark {
+    flex: 0 0 40px; width: 40px; height: 40px;
+    border-radius: 50%;
+    background: var(--card);
+    display: flex; align-items: center; justify-content: center;
+    color: var(--sage-deep);
+    font-size: 1.1rem;
+  }
+  .connect-body { flex: 1; min-width: 0; }
+  .connect-label {
+    font-size: 0.68rem;
+    letter-spacing: 0.16em;
+    text-transform: uppercase;
+    font-weight: 600;
+    color: var(--sage-deep);
+    margin-bottom: 4px;
+  }
+  .connect-email {
+    display: inline-block;
+    color: var(--text);
+    text-decoration: none;
+    font-weight: 600;
+    font-size: 1rem;
+    border-bottom: 1px solid var(--sage);
+    padding-bottom: 1px;
+    word-break: break-all;
+  }
+  .connect-email:hover { color: var(--sage-deep); border-bottom-color: var(--sage-deep); }
+  .connect-note { font-size: 0.85rem; color: var(--text-soft); margin-top: 4px; line-height: 1.4; }
+
   .error-box {
     margin-top: 18px;
     padding: 14px 16px;
@@ -1169,9 +1212,17 @@ function renderEnd(root) {
           el('div', null,
             el('div', { class: 'inbox-title' }, 'Your personalized Blueprint'),
             el('div', { class: 'inbox-when' }, 'After ICA ASCEND'),
-            el('div', { class: 'inbox-desc' }, 'Personally reviewed by Rosie before it is sent.')
+            el('div', { class: 'inbox-desc' }, 'Personally crafted by Rosie based on your responses.')
           )
         )
+      )
+    ),
+    el('div', { class: 'connect-card' },
+      el('div', { class: 'connect-mark', html: '&#9993;' }),
+      el('div', { class: 'connect-body' },
+        el('div', { class: 'connect-label' }, 'Want to connect?'),
+        el('a', { class: 'connect-email', href: 'mailto:info@clicktotable.com?subject=Click%20to%20Table%20Blueprint' }, 'info@clicktotable.com'),
+        el('div', { class: 'connect-note' }, 'Reach out anytime — questions, ideas, or a follow-up conversation.')
       )
     ),
     el('div', { class: 'end-actions' },
