@@ -1,0 +1,682 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Click to Table — Full Blueprint Experience</title>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=DM+Serif+Display&family=DM+Sans:wght@400;500;700&display=swap');
+
+  :root {
+    --ink: #2E322F;
+    --gold: #B89A57;
+    --sky: #A8BCA6;
+    --pale-sage: #DDE8DD;
+    --sage: #6C8A72;
+    --warm: #FBFAF7;
+    --gray: #6F736E;
+    --stone: #D8D7D2;
+    --ghost: #3B403C;
+  }
+
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+
+  body {
+    font-family: 'DM Sans', sans-serif;
+    background: #E7E5E0;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    min-height: 100vh;
+    padding: 28px 16px;
+  }
+
+  .caption {
+    font-size: 13px;
+    color: var(--gray);
+    margin-bottom: 16px;
+    text-align: center;
+    max-width: 380px;
+  }
+  .caption b { color: var(--ink); }
+
+  .phone {
+    width: 390px;
+    max-width: 100%;
+    min-height: 720px;
+    background: var(--warm);
+    border-radius: 28px;
+    box-shadow: 0 20px 60px rgba(46,50,47,0.25);
+    overflow: hidden;
+    position: relative;
+  }
+
+  .screen {
+    display: flex;
+    flex-direction: column;
+    padding: 28px 24px 28px;
+    min-height: 720px;
+    animation: fadeIn 0.3s ease;
+  }
+  @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
+
+  .topbar {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    font-size: 10.5px;
+    letter-spacing: 0.06em;
+    color: var(--gray);
+    margin-bottom: 6px;
+  }
+  .topbar .section-label { color: var(--ink); font-weight: 700; }
+
+  .progress-track {
+    height: 4px;
+    background: var(--stone);
+    border-radius: 4px;
+    margin: 12px 0 22px;
+    overflow: hidden;
+  }
+  .progress-fill {
+    height: 100%;
+    background: var(--gold);
+    border-radius: 4px;
+    transition: width 0.3s ease;
+  }
+
+  .decision-label {
+    font-size: 10.5px;
+    font-weight: 700;
+    letter-spacing: 0.08em;
+    color: var(--gold);
+    margin-bottom: 8px;
+  }
+
+  h1 {
+    font-family: 'DM Serif Display', serif;
+    font-weight: 400;
+    font-size: 23px;
+    color: var(--ink);
+    line-height: 1.25;
+    margin-bottom: 16px;
+  }
+
+  .tip {
+    background: var(--pale-sage);
+    border-radius: 14px;
+    padding: 13px 15px;
+    display: flex;
+    gap: 10px;
+    align-items: flex-start;
+    margin-bottom: 20px;
+  }
+  .tip .avatar {
+    width: 20px; height: 20px;
+    background: var(--ink);
+    color: var(--warm);
+    border-radius: 50%;
+    font-size: 10px;
+    font-weight: 700;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+    margin-top: 1px;
+  }
+  .tip p { font-size: 12.5px; color: var(--ink); line-height: 1.4; }
+
+  .options { display: flex; flex-direction: column; gap: 9px; margin-bottom: auto; }
+
+  .option {
+    border: 1.5px solid var(--stone);
+    background: #fff;
+    border-radius: 13px;
+    padding: 13px 16px;
+    font-family: 'DM Sans', sans-serif;
+    font-size: 14px;
+    color: var(--ink);
+    text-align: left;
+    cursor: pointer;
+    transition: all 0.15s ease;
+    line-height: 1.35;
+  }
+  .option:hover { border-color: var(--sage); }
+  .option.selected {
+    border-color: var(--sage);
+    background: var(--pale-sage);
+    font-weight: 500;
+  }
+
+  textarea.option-text {
+    width: 100%;
+    border: 1.5px solid var(--stone);
+    border-radius: 13px;
+    padding: 13px 16px;
+    font-family: 'DM Sans', sans-serif;
+    font-size: 14px;
+    color: var(--ink);
+    resize: none;
+    min-height: 90px;
+  }
+  .char-hint { font-size: 11px; color: var(--gray); margin-top: 6px; text-align: right; }
+
+  .btn {
+    margin-top: 20px;
+    background: var(--gold);
+    color: var(--ink);
+    border: none;
+    border-radius: 30px;
+    padding: 15px;
+    font-family: 'DM Sans', sans-serif;
+    font-size: 14.5px;
+    font-weight: 700;
+    cursor: pointer;
+    width: 100%;
+  }
+  .btn:disabled { opacity: 0.35; cursor: not-allowed; }
+  .btn.secondary { background: transparent; border: 1.5px solid var(--ink); color: var(--ink); }
+  .btn.dark { background: var(--gold); }
+
+  .back-link {
+    margin-top: 10px;
+    background: none;
+    border: none;
+    color: var(--gray);
+    font-family: 'DM Sans', sans-serif;
+    font-size: 12.5px;
+    cursor: pointer;
+    text-align: center;
+  }
+
+  /* Reveal */
+  .reveal-screen { background: var(--warm); align-items: center; justify-content: center; text-align: center; }
+  .reveal-eyebrow { font-size: 10.5px; font-weight: 700; letter-spacing: 0.1em; color: var(--gold); margin-bottom: 12px; }
+  .reveal-icon {
+    width: 74px; height: 74px; border-radius: 50%; background: var(--sage);
+    display: flex; align-items: center; justify-content: center; margin-bottom: 18px; font-size: 30px;
+  }
+  .reveal-title { font-family: 'DM Serif Display', serif; font-size: 28px; color: var(--ink); margin-bottom: 4px; }
+  .reveal-sub { font-size: 13px; color: var(--sage); font-style: italic; margin-bottom: 18px; }
+  .reveal-desc { font-size: 13.5px; color: var(--ink); line-height: 1.5; max-width: 300px; margin-bottom: 22px; }
+  .reveal-card { background: #fff; border: 1.5px solid var(--stone); border-radius: 16px; padding: 15px 17px; width: 100%; text-align: left; margin-bottom: 20px; }
+  .reveal-card .label { font-size: 9.5px; font-weight: 700; letter-spacing: 0.07em; color: var(--gray); margin-bottom: 5px; }
+  .reveal-card .val { font-size: 13px; color: var(--ink); line-height: 1.4; }
+
+  /* Welcome */
+  .welcome-screen { background: var(--ink); justify-content: center; align-items: center; text-align: center; }
+  .welcome-kicker { font-size: 11px; font-weight: 700; letter-spacing: 0.1em; color: var(--gold); margin-bottom: 16px; }
+  .welcome-title { font-family: 'DM Serif Display', serif; font-size: 34px; color: var(--warm); margin-bottom: 10px; line-height: 1.15; }
+  .welcome-sub { font-size: 14px; color: var(--sky); font-style: italic; margin-bottom: 26px; }
+  .welcome-meta { font-size: 12px; color: var(--gray); margin-bottom: 26px; }
+
+  /* Final profile + email + confirmation */
+  .profile-screen { background: var(--ink); padding: 30px 24px 26px; }
+  .profile-eyebrow { font-size: 10.5px; font-weight: 700; letter-spacing: 0.12em; color: var(--gold); text-align: center; margin-bottom: 8px; }
+  .profile-title { font-family: 'DM Serif Display', serif; font-size: 24px; color: var(--warm); text-align: center; margin-bottom: 4px; line-height: 1.2; }
+  .profile-sub { font-size: 12px; color: var(--sky); font-style: italic; text-align: center; margin-bottom: 20px; }
+  .profile-rows { display: flex; flex-direction: column; gap: 8px; margin-bottom: 22px; }
+  .profile-row { background: var(--ghost); border-radius: 12px; padding: 10px 13px; display: flex; align-items: center; gap: 11px; }
+  .profile-row .p-icon { width: 32px; height: 32px; border-radius: 50%; background: var(--sage); display: flex; align-items: center; justify-content: center; font-size: 15px; flex-shrink: 0; }
+  .profile-row .p-label { font-size: 9px; font-weight: 700; letter-spacing: 0.06em; color: var(--sky); margin-bottom: 1px; }
+  .profile-row .p-title { font-family: 'DM Serif Display', serif; font-size: 15px; color: var(--warm); }
+
+  .confirm-screen { background: var(--pale-sage); align-items: center; justify-content: center; text-align: center; }
+  .confirm-check { width: 64px; height: 64px; border-radius: 50%; border: 2px solid var(--ink); display: flex; align-items: center; justify-content: center; font-size: 28px; margin-bottom: 20px; }
+  .confirm-title { font-family: 'DM Serif Display', serif; font-size: 26px; color: var(--ink); margin-bottom: 10px; }
+  .confirm-desc { font-size: 13.5px; color: var(--ink); line-height: 1.5; max-width: 290px; margin-bottom: 4px; }
+
+  .step-dots {
+    position: absolute;
+    bottom: -30px;
+    left: 0; right: 0;
+    text-align: center;
+    font-size: 11px;
+    color: var(--gray);
+  }
+</style>
+</head>
+<body>
+
+<div class="caption">Full sequential walkthrough. <b>Next</b> advances through all 15 questions, section by section, with each reveal firing automatically. Use <b>Back</b> to review.</div>
+
+<div class="phone" id="phone"></div>
+<div class="step-dots" id="stepDots"></div>
+
+<script>
+// ---------------- DATA ----------------
+
+const SECTIONS = [
+  {
+    num: 1, label: "SECTION 1",
+    questions: [
+      {
+        id: "q1", decision: "DECISION 1",
+        text: "What is your primary goal for launching or expanding e-commerce?",
+        tip: "There's no wrong answer, just name the outcome you want most right now.",
+        options: ["Increase overall revenue", "Fill a slower season", "Reach a new customer segment", "Reduce manual order-taking", "Improve operational efficiency"],
+      },
+      {
+        id: "q2", decision: "DECISION 2",
+        text: "Which quarter is typically your lightest for catering revenue?",
+        tip: null,
+        options: ["Jan – Mar", "Apr – Jun", "Jul – Sep", "Oct – Dec"],
+      },
+      {
+        id: "q3", decision: "DECISION 3",
+        text: "Where does your greatest opportunity for online growth exist?",
+        tip: "There's no wrong answer here. Pick whichever feels closest to what you're actually facing right now.",
+        options: [
+          { text: "Adjusting or repackaging what I already offer", scopeKey: "adjust" },
+          { text: "Reaching a customer segment I don't currently serve", scopeKey: "build" },
+          { text: "A dedicated new channel or storefront", scopeKey: "build" },
+        ],
+      },
+    ],
+    reveals: {
+      adjust: { icon: "🔧", title: "You're an Adjuster", sub: "Launch scope: adjust what exists",
+        desc: "You already have something working. Your biggest opportunity is repackaging, merchandising, or extending what exists, not starting from scratch.",
+        meaning: "The recommendations in your Blueprint will lean toward low-lift moves you can make on your current site or menu, not a rebuild." },
+      build: { icon: "🚀", title: "You're a Builder", sub: "Launch scope: build something new",
+        desc: "Your biggest opportunity looks like something new: a different customer, a dedicated channel, a fresh start built specifically for this.",
+        meaning: "The recommendations in your Blueprint will lean toward a focused new offer, scoped tight so it doesn't turn into a long project." },
+    }
+  },
+  {
+    num: 2, label: "SECTION 2",
+    questions: [
+      {
+        id: "q4", decision: "DECISION 4",
+        text: "Which customer segment would you focus on first?",
+        tip: "Pick whoever already trusts you most.",
+        options: ["Wedding clients", "Corporate offices", "Social hosts (parties & gatherings)", "A mix of all three"],
+      },
+      {
+        id: "q5", decision: "DECISION 5",
+        text: "Which product category would you launch first?",
+        tip: "Start with what's easiest to prep and photograph.",
+        options: ["Boxed lunches & sandwich platters", "Grazing & charcuterie", "Hot buffet packages", "Desserts & sweets"],
+      },
+      {
+        id: "q6", decision: "DECISION 6",
+        text: "How many online packages could you realistically launch in the next 30 days?",
+        tip: "8–15 beats 40 vague ones.",
+        options: [
+          { text: "5–8 packages", scopeKey: "lean" },
+          { text: "9–12 packages", scopeKey: "solid" },
+          { text: "13–15 packages", scopeKey: "full" },
+        ],
+      },
+    ],
+    reveals: {
+      lean: { icon: "🌱", title: "Lean Launch", sub: "Catalog size: 5–8 packages",
+        desc: "You're keeping it tight on purpose. A small, sharp catalog gets you live fastest and gives you real signal before you expand.",
+        meaning: "Your Blueprint will focus on making a handful of offers excellent, not on catalog breadth." },
+      solid: { icon: "📦", title: "Solid Catalog", sub: "Catalog size: 9–12 packages",
+        desc: "You're building a real catalog from day one. This is where most operators land, enough choice without overwhelming anyone.",
+        meaning: "Your Blueprint will focus on organizing that catalog clearly, likely with a Good, Better, Best structure." },
+      full: { icon: "🗂️", title: "Full Range", sub: "Catalog size: 13–15 packages",
+        desc: "You're going in with your full range. That works best when your packages are already well-documented and ready to sell.",
+        meaning: "Your Blueprint will double-check that documentation and photography can keep pace with that breadth." },
+    }
+  },
+  {
+    num: 3, label: "SECTION 3",
+    questions: [
+      {
+        id: "q7", decision: "DECISION 7",
+        text: "Which best describes your current website?",
+        tip: "No judgment here. Just tell us honestly where you're starting from.",
+        options: [
+          { text: "No website, or just social media", scopeKey: "diy" },
+          { text: "A basic informational site, no online ordering", scopeKey: "transitioning" },
+          { text: "A website with online ordering already built in", scopeKey: "ready" },
+        ],
+      },
+      {
+        id: "q8", decision: "DECISION 8",
+        text: "What catering or event management software do you currently use?",
+        tip: "This tells us what to connect, not what to replace.",
+        options: [
+          "Caterease", "Total Party Planner", "Curate", "None yet",
+          { text: "Something else", isOther: true },
+        ],
+      },
+      {
+        id: "q9", decision: "DECISION 9",
+        text: "How do most customers place orders today?",
+        tip: "Phone, email, a form. All valid starting points.",
+        options: ["Phone", "Email", "A simple form or spreadsheet", "Already fully online"],
+      },
+    ],
+    reveals: {
+      diy: { icon: "🌾", title: "DIY", sub: "Digital readiness: just starting",
+        desc: "You're starting from the ground up, and that's a completely normal place to be. Everything today is aimed at getting you from zero to a working first channel.",
+        meaning: "Your Blueprint will prioritize the fastest, simplest path to a first live channel, not a full custom build." },
+      transitioning: { icon: "🔄", title: "Transitioning", sub: "Digital readiness: building on a foundation",
+        desc: "You've got a foundation already. The next step isn't starting over, it's adding ordering on top of what you have.",
+        meaning: "Your Blueprint will focus on connecting ordering to your existing site rather than replacing it." },
+      ready: { icon: "✅", title: "Digital-Ready", sub: "Digital readiness: infrastructure in place",
+        desc: "You already have the infrastructure. Your opportunity is less about building and more about optimizing what's already live.",
+        meaning: "Your Blueprint will focus on conversion, merchandising, and refinement rather than platform selection." },
+    }
+  },
+  {
+    num: 4, label: "SECTION 4",
+    questions: [
+      {
+        id: "q10", decision: "DECISION 10",
+        text: "Which operational area concerns you most?",
+        tip: "There's no wrong answer. Name what actually keeps you up at night.",
+        options: [
+          { text: "Kitchen & production capacity", scopeKey: "kitchen" },
+          { text: "Packaging", scopeKey: "packaging" },
+          { text: "Delivery", scopeKey: "delivery" },
+          { text: "Staffing & communication", scopeKey: "staff" },
+        ],
+      },
+      {
+        id: "q11", decision: "DECISION 11",
+        text: "How are deliveries primarily handled today?",
+        tip: null,
+        options: ["In-house team", "Third-party delivery partner", "A mix of both", "Customers pick up"],
+      },
+      {
+        id: "q12", decision: "DECISION 12",
+        text: "Which process is still the most manual?",
+        tip: "Whatever you name here is your best automation candidate.",
+        options: ["Order taking", "Labeling & packaging", "Scheduling & routing", "Customer communication"],
+      },
+    ],
+    reveals: {
+      kitchen: { icon: "🍳", title: "The Capacity Builder", sub: "Operational focus: production",
+        desc: "Your kitchen is the engine, and you're worried about keeping up. The fix usually isn't a bigger kitchen, it's better alignment between what you already produce and what you sell online.",
+        meaning: "Your Blueprint will look for overlap between your online menu and your existing production line, not a separate build." },
+      packaging: { icon: "📦", title: "The Systemizer", sub: "Operational focus: packaging",
+        desc: "You know the details make or break execution. Standardizing containers and packaging is one of the highest-leverage, lowest-cost fixes available to you.",
+        meaning: "Your Blueprint will include specific packaging SKU recommendations to simplify production." },
+      delivery: { icon: "🚚", title: "The Logistics Strategist", sub: "Operational focus: delivery",
+        desc: "Getting food from your kitchen to the customer, intact and on time, is where you're focused. That's often about choosing the right delivery model, not doing more yourself.",
+        meaning: "Your Blueprint will lay out in-house, outsourced, and hybrid delivery tradeoffs for your volume." },
+      staff: { icon: "🗣️", title: "The People-First Operator", sub: "Operational focus: people & communication",
+        desc: "Your team and your customers are where the friction lives. Automating repetitive tasks, like labeling, frees up real time for the things that actually need a human.",
+        meaning: "Your Blueprint will prioritize automation that reduces manual, repetitive work for your team." },
+    }
+  },
+  {
+    num: 5, label: "SECTION 5",
+    questions: [
+      {
+        id: "q13", decision: "DECISION 13", isOpen: true,
+        text: "Once your initial launch is successful, what would you expand next?",
+        tip: "One sentence is plenty.",
+      },
+      {
+        id: "q14", decision: "DECISION 14",
+        text: "Which statement best describes your organization today?",
+        tip: "Pick whichever feels closest. There's no wrong stage to be in.",
+        options: [
+          { text: "Just exploring, haven't launched yet", scopeKey: "validate" },
+          { text: "Launched, still refining what works", scopeKey: "optimize" },
+          { text: "Live and working well, ready to expand", scopeKey: "scale" },
+        ],
+      },
+      {
+        id: "q15", decision: "DECISION 15", isOpen: true,
+        text: "Six months from now, what would make you consider this project a success?",
+        tip: "One sentence is plenty.",
+      },
+    ],
+    reveals: {
+      validate: { icon: "🧪", title: "Validate", sub: "Growth stage: proving the concept",
+        desc: "You're in the validate stage, and that's exactly on schedule. Focus on proving your first channel works before adding anything else.",
+        meaning: "Your Blueprint will focus entirely on a clean, scoped first launch, not on expansion yet." },
+      optimize: { icon: "🎛️", title: "Optimize", sub: "Growth stage: refining what's live",
+        desc: "You're in the optimize stage. Keep refining what's live before you expand, that's how growth stays sustainable.",
+        meaning: "Your Blueprint will focus on specific refinements to your current catalog and operations." },
+      scale: { icon: "📈", title: "Scale", sub: "Growth stage: ready to expand",
+        desc: "You're ready to scale. Your foundation is proven, now it's about expanding intentionally into more products, channels, or seasons.",
+        meaning: "Your Blueprint will focus on which expansion path (products, channels, or seasons) fits your goals best." },
+    }
+  },
+];
+
+// ---------------- STATE ----------------
+
+// Build a flat list of steps: welcome, then per section: q,q,q,reveal ... then final, email, confirm
+const STEPS = ["welcome"];
+SECTIONS.forEach(sec => {
+  sec.questions.forEach(q => STEPS.push({ type: "question", sectionNum: sec.num, q }));
+  STEPS.push({ type: "reveal", sectionNum: sec.num });
+});
+STEPS.push("final", "email", "confirm");
+
+let stepIndex = 0;
+const answers = {}; // qId -> { text, scopeKey }
+
+function totalQuestions() { return 15; }
+function questionNumberFor(qId) { return parseInt(qId.replace('q','')); }
+
+// ---------------- RENDER ----------------
+
+function render() {
+  const step = STEPS[stepIndex];
+  const phone = document.getElementById('phone');
+  const dots = document.getElementById('stepDots');
+
+  if (step === "welcome") {
+    phone.innerHTML = renderWelcome();
+    dots.textContent = "Welcome screen";
+  } else if (step === "final") {
+    phone.innerHTML = renderFinal();
+    dots.textContent = "Final Profile";
+  } else if (step === "email") {
+    phone.innerHTML = renderEmail();
+    dots.textContent = "Email capture";
+  } else if (step === "confirm") {
+    phone.innerHTML = renderConfirm();
+    dots.textContent = "Confirmation";
+  } else if (step.type === "question") {
+    phone.innerHTML = renderQuestion(step.sectionNum, step.q);
+    dots.textContent = `Question ${questionNumberFor(step.q.id)} of 15`;
+  } else if (step.type === "reveal") {
+    phone.innerHTML = renderReveal(step.sectionNum);
+    dots.textContent = `Section ${step.sectionNum} reveal`;
+  }
+}
+
+function renderWelcome() {
+  return `
+    <div class="screen welcome-screen">
+      <div class="welcome-kicker">FROM CLICK TO TABLE</div>
+      <div class="welcome-title">Build Your<br>Launch Blueprint</div>
+      <div class="welcome-sub">Five sections. Fifteen questions. One plan.</div>
+      <div class="welcome-meta">Takes about 8 minutes.</div>
+      <button class="btn" style="width:auto;padding:15px 32px;" onclick="goNext()">Let's begin →</button>
+    </div>
+  `;
+}
+
+function renderQuestion(secNum, q) {
+  const sec = SECTIONS[secNum - 1];
+  const stepNum = questionNumberFor(q.id);
+  const progress = Math.round((stepNum / 15) * 100);
+  const existing = answers[q.id];
+
+  let bodyHtml = "";
+  if (q.isOpen) {
+    bodyHtml = `
+      <textarea class="option-text" id="openAnswer" placeholder="Type your answer..." oninput="document.getElementById('continueBtn').disabled = this.value.trim().length === 0;">${existing ? existing.text : ''}</textarea>
+      <div class="char-hint">One sentence is plenty.</div>
+    `;
+  } else {
+    bodyHtml = `<div class="options" id="optionsContainer">` +
+      q.options.map((opt, i) => {
+        const text = typeof opt === "string" ? opt : opt.text;
+        const isOther = typeof opt === "object" && opt.isOther;
+        const isSelected = existing && (isOther ? existing.isOtherSelected : (existing.text === text && !existing.isOtherSelected));
+        return `<button class="option ${isSelected ? 'selected' : ''}" onclick="selectOption('${q.id}', ${i}, this)">${text}</button>`;
+      }).join('') +
+      `</div>` +
+      (q.options.some(o => typeof o === "object" && o.isOther) ?
+        `<div id="otherInputWrap" style="${existing && existing.isOtherSelected ? '' : 'display:none;'}margin-top:10px;">
+          <input type="text" class="option-text" id="otherInput" placeholder="Which platform?"
+            value="${existing && existing.isOtherSelected ? existing.text : ''}"
+            style="width:100%;padding:13px 16px;border:1.5px solid var(--stone);border-radius:13px;font-family:'DM Sans',sans-serif;font-size:14px;"
+            oninput="updateOtherAnswer('${q.id}', this.value)">
+        </div>` : '');
+  }
+
+  return `
+    <div class="screen">
+      <div class="topbar">
+        <span>STEP ${stepNum} OF 15</span>
+        <span class="section-label">${sec.label}</span>
+      </div>
+      <div class="progress-track"><div class="progress-fill" style="width:${progress}%"></div></div>
+      <div class="decision-label">${q.decision}</div>
+      <h1>${q.text}</h1>
+      ${q.tip ? `<div class="tip"><div class="avatar">R</div><p>${q.tip}</p></div>` : ''}
+      ${bodyHtml}
+      <button class="btn" id="continueBtn" ${(existing && existing.text.length > 0) ? '' : 'disabled'} onclick="submitQuestion('${q.id}', ${secNum})">Continue →</button>
+      ${stepIndex > 0 ? `<button class="back-link" onclick="goBack()">← Back</button>` : ''}
+    </div>
+  `;
+}
+
+function selectOption(qId, idx, btn) {
+  const sec = SECTIONS.find(s => s.questions.some(q => q.id === qId));
+  const q = sec.questions.find(q => q.id === qId);
+  const opt = q.options[idx];
+  const text = typeof opt === "string" ? opt : opt.text;
+  const scopeKey = typeof opt === "string" ? null : opt.scopeKey;
+  const isOther = typeof opt === "object" && opt.isOther;
+
+  document.querySelectorAll('#optionsContainer .option').forEach(o => o.classList.remove('selected'));
+  btn.classList.add('selected');
+
+  const otherWrap = document.getElementById('otherInputWrap');
+
+  if (isOther) {
+    answers[qId] = { text: "", scopeKey: null, isOtherSelected: true };
+    if (otherWrap) {
+      otherWrap.style.display = '';
+      document.getElementById('otherInput').focus();
+    }
+    document.getElementById('continueBtn').disabled = true; // wait for them to type the platform name
+  } else {
+    answers[qId] = { text, scopeKey, isOtherSelected: false };
+    if (otherWrap) otherWrap.style.display = 'none';
+    document.getElementById('continueBtn').disabled = false;
+  }
+}
+
+function updateOtherAnswer(qId, value) {
+  const val = value.trim();
+  answers[qId] = { text: val, scopeKey: null, isOtherSelected: true };
+  document.getElementById('continueBtn').disabled = val.length === 0;
+}
+
+function submitQuestion(qId, secNum) {
+  const sec = SECTIONS[secNum - 1];
+  const q = sec.questions.find(qq => qq.id === qId);
+  if (q.isOpen) {
+    const val = document.getElementById('openAnswer').value.trim();
+    if (!val) return;
+    answers[qId] = { text: val, scopeKey: null };
+  }
+  goNext();
+}
+
+function renderReveal(secNum) {
+  const sec = SECTIONS[secNum - 1];
+  // find the question in this section that has a scopeKey answer
+  const drivingAnswer = sec.questions.map(q => answers[q.id]).find(a => a && a.scopeKey);
+  const key = drivingAnswer ? drivingAnswer.scopeKey : Object.keys(sec.reveals)[0];
+  const r = sec.reveals[key];
+
+  return `
+    <div class="screen reveal-screen">
+      <div class="reveal-eyebrow">${sec.label} SNAPSHOT</div>
+      <div class="reveal-icon">${r.icon}</div>
+      <div class="reveal-title">${r.title}</div>
+      <div class="reveal-sub">${r.sub}</div>
+      <div class="reveal-desc">${r.desc}</div>
+      <div class="reveal-card">
+        <div class="label">WHAT THIS MEANS FOR YOUR BLUEPRINT</div>
+        <div class="val">${r.meaning}</div>
+      </div>
+      <button class="btn" onclick="goNext()">Continue →</button>
+    </div>
+  `;
+}
+
+function renderFinal() {
+  const rowsHtml = SECTIONS.map(sec => {
+    const drivingAnswer = sec.questions.map(q => answers[q.id]).find(a => a && a.scopeKey);
+    const key = drivingAnswer ? drivingAnswer.scopeKey : Object.keys(sec.reveals)[0];
+    const r = sec.reveals[key];
+    return `
+      <div class="profile-row">
+        <div class="p-icon">${r.icon}</div>
+        <div class="p-text">
+          <div class="p-label">${sec.label}</div>
+          <div class="p-title">${r.title}</div>
+        </div>
+      </div>`;
+  }).join('');
+
+  return `
+    <div class="screen profile-screen">
+      <div class="profile-eyebrow">YOUR LAUNCH PROFILE</div>
+      <div class="profile-title">Five decisions.<br>One combination.</div>
+      <div class="profile-sub">Your starting point, not a finished plan.</div>
+      <div class="profile-rows">${rowsHtml}</div>
+      <button class="btn" onclick="goNext()">See what's next →</button>
+    </div>
+  `;
+}
+
+function renderEmail() {
+  return `
+    <div class="screen" style="justify-content:center;">
+      <div class="decision-label" style="text-align:center;">ALMOST THERE</div>
+      <h1 style="text-align:center;">Where should we send your full Blueprint?</h1>
+      <p style="font-size:13px;color:var(--gray);text-align:center;margin-bottom:20px;line-height:1.5;">Rosie reviews every submission personally. Your full Blueprint, with specific recommendations for each of these five results, will follow by email.</p>
+      <input type="email" id="emailInput" placeholder="you@catering.co" style="width:100%;padding:14px 16px;border:1.5px solid var(--stone);border-radius:13px;font-family:'DM Sans',sans-serif;font-size:14px;margin-bottom:16px;">
+      <button class="btn" onclick="goNext()">Send my Blueprint →</button>
+      <button class="back-link" onclick="goBack()">← Back to my profile</button>
+    </div>
+  `;
+}
+
+function renderConfirm() {
+  return `
+    <div class="screen confirm-screen">
+      <div class="confirm-check">✓</div>
+      <div class="confirm-title">On its way.</div>
+      <div class="confirm-desc">Check your inbox soon. Rosie reads every Blueprint personally before sending back what she'd do next in your shoes.</div>
+    </div>
+  `;
+}
+
+function goNext() {
+  if (stepIndex < STEPS.length - 1) {
+    stepIndex++;
+    render();
+    window.scrollTo(0, 0);
+  }
+}
+
+function goBack() {
+  if (stepIndex > 0) {
+    stepIndex--;
+    render();
+  }
+}
+
+render();
+</script>
+
+</body>
+</html>
