@@ -13,7 +13,7 @@
     --sky: #A8BCA6;
     --pale-sage: #DDE8DD;
     --sage: #6C8A72;
-    --warm: #FBFAF7;
+    --warm: #FBFAF7;https://script.google.com/macros/s/AKfycbwgqnGuat6G7AHhNGMQvvDeJJoQjxXCnHT4RZsx-1MKViUPHH4zCWh2Y1-iAO-2JY3dZQ/exec
     --gray: #6F736E;
     --stone: #D8D7D2;
     --ghost: #3B403C;
@@ -226,6 +226,51 @@
   .confirm-title { font-family: 'DM Serif Display', serif; font-size: 26px; color: var(--ink); margin-bottom: 10px; }
   .confirm-desc { font-size: 13.5px; color: var(--ink); line-height: 1.5; max-width: 290px; margin-bottom: 4px; }
 
+
+  .contact-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-bottom: 10px; }
+  .contact-field { display: flex; flex-direction: column; gap: 5px; }
+  .contact-field.full { grid-column: 1 / -1; }
+  .contact-field label { font-size: 10px; font-weight: 700; letter-spacing: 0.05em; color: var(--gray); }
+  .contact-input {
+    width: 100%;
+    padding: 13px 14px;
+    border: 1.5px solid var(--stone);
+    border-radius: 13px;
+    font-family: 'DM Sans', sans-serif;
+    font-size: 14px;
+    color: var(--ink);
+    background: #fff;
+  }
+  .contact-input:focus, textarea.option-text:focus {
+    outline: none;
+    border-color: var(--sage);
+    box-shadow: 0 0 0 3px rgba(108,138,114,0.12);
+  }
+  .save-status {
+    min-height: 18px;
+    margin-top: 9px;
+    font-size: 11px;
+    color: var(--gray);
+    text-align: center;
+  }
+  .complete-badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    align-self: center;
+    padding: 7px 11px;
+    border-radius: 999px;
+    background: var(--pale-sage);
+    color: var(--ink);
+    font-size: 11px;
+    font-weight: 700;
+    margin-bottom: 14px;
+  }
+  @media (max-width: 380px) {
+    .contact-grid { grid-template-columns: 1fr; }
+    .contact-field.full { grid-column: auto; }
+  }
+
   .step-dots {
     position: absolute;
     bottom: -30px;
@@ -238,12 +283,21 @@
 </head>
 <body>
 
-<div class="caption">Full sequential walkthrough. <b>Next</b> advances through all 15 questions, section by section, with each reveal firing automatically. Use <b>Back</b> to review.</div>
-
 <div class="phone" id="phone"></div>
 <div class="step-dots" id="stepDots"></div>
 
 <script>
+// ---------------- CONFIG ----------------
+
+const CONFIG = {
+  APPS_SCRIPT_URL: "PASTE_YOUR_NEW_WEB_APP_URL_HERE"
+};
+
+let submissionId =
+  typeof crypto !== "undefined" && crypto.randomUUID
+    ? crypto.randomUUID()
+    : `ctt-${Date.now()}-${Math.random().toString(36).slice(2)}`;
+
 // ---------------- DATA ----------------
 
 const SECTIONS = [
@@ -260,7 +314,7 @@ const SECTIONS = [
         id: "q2", decision: "DECISION 2",
         text: "Which quarter is typically your lightest for catering revenue?",
         tip: null,
-        options: ["Jan – Mar", "Apr – Jun", "Jul – Sep", "Oct – Dec"],
+        options: ["Jan – Mar", "Apr – Jun", "Jul – Sep", "Oct – Dec", "Fairly consistent year-round"],
       },
       {
         id: "q3", decision: "DECISION 3",
@@ -443,8 +497,9 @@ const SECTIONS = [
 
 // ---------------- STATE ----------------
 
-// Build a flat list of steps: welcome, then per section: q,q,q,reveal ... then final, email, confirm
-const STEPS = ["welcome"];
+const STORAGE_KEY = "clickToTableBlueprintV1";
+
+const STEPS = ["welcome", "contact"];
 SECTIONS.forEach(sec => {
   sec.questions.forEach(q => STEPS.push({ type: "question", sectionNum: sec.num, q }));
   STEPS.push({ type: "reveal", sectionNum: sec.num });
@@ -452,10 +507,59 @@ SECTIONS.forEach(sec => {
 STEPS.push("final", "email", "confirm");
 
 let stepIndex = 0;
-const answers = {}; // qId -> { text, scopeKey }
+const answers = {};
+const contact = {
+  firstName: "",
+  lastName: "",
+  company: "",
+  title: "",
+  email: "",
+  city: "",
+  state: ""
+};
 
 function totalQuestions() { return 15; }
 function questionNumberFor(qId) { return parseInt(qId.replace('q','')); }
+
+function saveLocalProgress() {
+  try {
+    localStorage.setItem(STORAGE_KEY, JSON.stringify({
+      submissionId,
+      stepIndex,
+      answers,
+      contact,
+      savedAt: new Date().toISOString()
+    }));
+  } catch (err) {
+    console.warn("Local progress could not be saved:", err);
+  }
+}
+
+function restoreLocalProgress() {
+  try {
+    const saved = JSON.parse(localStorage.getItem(STORAGE_KEY) || "null");
+    if (!saved) return;
+
+    if (saved.submissionId) submissionId = saved.submissionId;
+    if (saved.submissionId) submissionId = saved.submissionId;
+    if (saved.answers) Object.assign(answers, saved.answers);
+    if (saved.contact) Object.assign(contact, saved.contact);
+
+    if (Number.isInteger(saved.stepIndex)) {
+      stepIndex = Math.min(Math.max(saved.stepIndex, 0), STEPS.length - 2);
+    }
+  } catch (err) {
+    console.warn("Saved progress could not be restored:", err);
+  }
+}
+
+function clearLocalProgress() {
+  try {
+    localStorage.removeItem(STORAGE_KEY);
+  } catch (err) {
+    console.warn("Saved progress could not be cleared:", err);
+  }
+}
 
 // ---------------- RENDER ----------------
 
@@ -467,6 +571,9 @@ function render() {
   if (step === "welcome") {
     phone.innerHTML = renderWelcome();
     dots.textContent = "Welcome screen";
+  } else if (step === "contact") {
+    phone.innerHTML = renderContact();
+    dots.textContent = "Your details";
   } else if (step === "final") {
     phone.innerHTML = renderFinal();
     dots.textContent = "Final Profile";
@@ -495,6 +602,75 @@ function renderWelcome() {
       <button class="btn" style="width:auto;padding:15px 32px;" onclick="goNext()">Let's begin →</button>
     </div>
   `;
+}
+
+
+function renderContact() {
+  return `
+    <div class="screen" style="justify-content:center;">
+      <div class="decision-label" style="text-align:center;">YOUR BLUEPRINT</div>
+      <h1 style="text-align:center;">Let's make this yours.</h1>
+      <p style="font-size:13px;color:var(--gray);text-align:center;margin-bottom:20px;line-height:1.5;">
+        Add your details so your progress can be saved and Rosie can send your personalized Blueprint. Your information will only be used for this follow-up.
+      </p>
+
+      <div class="contact-grid">
+        <div class="contact-field">
+          <label for="firstNameInput">FIRST NAME *</label>
+          <input class="contact-input" id="firstNameInput" autocomplete="given-name" value="${escapeHtml(contact.firstName)}">
+        </div>
+        <div class="contact-field">
+          <label for="lastNameInput">LAST NAME *</label>
+          <input class="contact-input" id="lastNameInput" autocomplete="family-name" value="${escapeHtml(contact.lastName)}">
+        </div>
+        <div class="contact-field full">
+          <label for="companyInput">COMPANY *</label>
+          <input class="contact-input" id="companyInput" autocomplete="organization" value="${escapeHtml(contact.company)}">
+        </div>
+        <div class="contact-field full">
+          <label for="contactEmailInput">EMAIL *</label>
+          <input class="contact-input" type="email" id="contactEmailInput" autocomplete="email" value="${escapeHtml(contact.email)}"
+            onkeydown="if(event.key === 'Enter') saveContactAndContinue()">
+        </div>
+      </div>
+
+      <button class="btn" id="contactContinueBtn" onclick="saveContactAndContinue()">Start my Blueprint →</button>
+      <button class="back-link" onclick="goBack()">← Back</button>
+      <div class="save-status" id="contactSaveStatus"></div>
+    </div>
+  `;
+}
+
+function escapeHtml(value) {
+  return String(value || "")
+    .replaceAll("&", "&amp;")
+    .replaceAll("<", "&lt;")
+    .replaceAll(">", "&gt;")
+    .replaceAll('"', "&quot;")
+    .replaceAll("'", "&#039;");
+}
+
+function saveContactAndContinue() {
+  const firstName = document.getElementById("firstNameInput").value.trim();
+  const lastName = document.getElementById("lastNameInput").value.trim();
+  const company = document.getElementById("companyInput").value.trim();
+  const email = document.getElementById("contactEmailInput").value.trim();
+
+  if (!firstName || !lastName || !company || !email) {
+    alert("Please complete your first name, last name, company, and email.");
+    return;
+  }
+
+  if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
+    alert("Please enter a valid email address.");
+    document.getElementById("contactEmailInput").focus();
+    return;
+  }
+
+  Object.assign(contact, { firstName, lastName, company, email });
+  saveLocalProgress();
+  autosaveBlueprint();
+  goNext();
 }
 
 function renderQuestion(secNum, q) {
@@ -569,12 +745,16 @@ function selectOption(qId, idx, btn) {
     if (otherWrap) otherWrap.style.display = 'none';
     document.getElementById('continueBtn').disabled = false;
   }
+  saveLocalProgress();
+  autosaveBlueprint();
 }
 
 function updateOtherAnswer(qId, value) {
   const val = value.trim();
   answers[qId] = { text: val, scopeKey: null, isOtherSelected: true };
   document.getElementById('continueBtn').disabled = val.length === 0;
+  saveLocalProgress();
+  autosaveBlueprint();
 }
 
 function submitQuestion(qId, secNum) {
@@ -585,6 +765,8 @@ function submitQuestion(qId, secNum) {
     if (!val) return;
     answers[qId] = { text: val, scopeKey: null };
   }
+  saveLocalProgress();
+  autosaveBlueprint();
   goNext();
 }
 
@@ -640,12 +822,19 @@ function renderFinal() {
 function renderEmail() {
   return `
     <div class="screen" style="justify-content:center;">
+      <div class="complete-badge">✓ Your Blueprint is complete</div>
       <div class="decision-label" style="text-align:center;">ALMOST THERE</div>
-      <h1 style="text-align:center;">Where should we send your full Blueprint?</h1>
-      <p style="font-size:13px;color:var(--gray);text-align:center;margin-bottom:20px;line-height:1.5;">Rosie reviews every submission personally. Your full Blueprint, with specific recommendations for each of these five results, will follow by email.</p>
-      <input type="email" id="emailInput" placeholder="you@catering.co" style="width:100%;padding:14px 16px;border:1.5px solid var(--stone);border-radius:13px;font-family:'DM Sans',sans-serif;font-size:14px;margin-bottom:16px;">
-      <button class="btn" onclick="goNext()">Send my Blueprint →</button>
+      <h1 style="text-align:center;">Ready to submit, ${escapeHtml(contact.firstName || "there")}?</h1>
+      <p style="font-size:13px;color:var(--gray);text-align:center;margin-bottom:18px;line-height:1.5;">
+        Rosie reviews every submission personally and will send recommendations to:
+      </p>
+      <div class="reveal-card" style="text-align:center;margin-bottom:14px;">
+        <div class="label">EMAIL</div>
+        <div class="val">${escapeHtml(contact.email)}</div>
+      </div>
+      <button class="btn" id="submitBlueprintBtn" onclick="submitBlueprint()">Submit my Blueprint →</button>
       <button class="back-link" onclick="goBack()">← Back to my profile</button>
+      <div class="save-status" id="submitStatus"></div>
     </div>
   `;
 }
@@ -654,15 +843,125 @@ function renderConfirm() {
   return `
     <div class="screen confirm-screen">
       <div class="confirm-check">✓</div>
-      <div class="confirm-title">On its way.</div>
-      <div class="confirm-desc">Check your inbox soon. Rosie reads every Blueprint personally before sending back what she'd do next in your shoes.</div>
+      <div class="confirm-title">Thanks, ${escapeHtml(contact.firstName || "you")}!</div>
+      <div class="confirm-desc">
+        Your Blueprint has been submitted. Rosie will personally review it and send recommendations to
+        <strong>${escapeHtml(contact.email)}</strong>.
+      </div>
     </div>
   `;
+}
+
+
+function buildAnswerPayload() {
+  const flatAnswers = {};
+
+  for (let i = 1; i <= 15; i++) {
+    const answer = answers[`q${i}`];
+    flatAnswers[`q${i}`] = answer ? answer.text || "" : "";
+  }
+
+  if (answers.q8 && answers.q8.isOtherSelected) {
+    flatAnswers.q8 = "Something else";
+    flatAnswers.q8Other = answers.q8.text || "";
+  } else {
+    flatAnswers.q8Other = "";
+  }
+
+  return flatAnswers;
+}
+
+function buildPayload() {
+  return {
+    submissionId,
+    contact: { ...contact },
+    answers: buildAnswerPayload()
+  };
+}
+
+let autosaveTimer = null;
+
+function autosaveBlueprint() {
+  if (!contact.email) return;
+  if (!CONFIG.APPS_SCRIPT_URL || CONFIG.APPS_SCRIPT_URL.includes("PASTE_YOUR_NEW_WEB_APP_URL_HERE")) return;
+
+  clearTimeout(autosaveTimer);
+  autosaveTimer = setTimeout(async () => {
+    try {
+      const body = new URLSearchParams({
+        action: "autosave",
+        payload: JSON.stringify(buildPayload())
+      });
+
+      await fetch(CONFIG.APPS_SCRIPT_URL, {
+        method: "POST",
+        body
+      });
+    } catch (error) {
+      console.warn("Autosave did not complete:", error);
+    }
+  }, 500);
+}
+
+async function submitBlueprint() {
+  if (!contact.email) {
+    alert("Your contact information is missing. Please go back and complete it.");
+    return;
+  }
+
+  if (!CONFIG.APPS_SCRIPT_URL || CONFIG.APPS_SCRIPT_URL.includes("PASTE_YOUR_NEW_WEB_APP_URL_HERE")) {
+    alert("The Apps Script URL still needs to be added to this HTML file.");
+    return;
+  }
+
+  const submitButton = document.getElementById("submitBlueprintBtn");
+  const status = document.getElementById("submitStatus");
+
+  if (submitButton) {
+    submitButton.disabled = true;
+    submitButton.textContent = "Submitting...";
+  }
+  if (status) status.textContent = "Saving your responses...";
+
+  try {
+    const body = new URLSearchParams({
+      action: "submit",
+      payload: JSON.stringify(buildPayload())
+    });
+
+    const response = await fetch(CONFIG.APPS_SCRIPT_URL, {
+      method: "POST",
+      body
+    });
+
+    if (!response.ok) {
+      throw new Error(`Submission failed with status ${response.status}`);
+    }
+
+    const result = await response.json();
+
+    if (!result.ok) {
+      throw new Error(result.error || "The submission could not be saved.");
+    }
+
+    clearLocalProgress();
+    goNext();
+  } catch (error) {
+    console.error("Blueprint submission error:", error);
+    alert("We couldn't submit your Blueprint. Please check your connection and try again.");
+
+    if (status) status.textContent = "Submission did not complete. Please try again.";
+    if (submitButton) {
+      submitButton.disabled = false;
+      submitButton.textContent = "Submit my Blueprint →";
+    }
+  }
 }
 
 function goNext() {
   if (stepIndex < STEPS.length - 1) {
     stepIndex++;
+    saveLocalProgress();
     render();
     window.scrollTo(0, 0);
   }
@@ -671,10 +970,12 @@ function goNext() {
 function goBack() {
   if (stepIndex > 0) {
     stepIndex--;
+    saveLocalProgress();
     render();
   }
 }
 
+restoreLocalProgress();
 render();
 </script>
 
